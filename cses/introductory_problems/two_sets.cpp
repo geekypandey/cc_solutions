@@ -40,52 +40,39 @@ void setup(string s) {
 vi v;
 bool done=false;
 
-// -1 means negative value
-// 0 means try next value
-int build(ll n, ll sum) {
-	if(sum < 0) return -1;
-	if(sum == 0) {
-		done=true;
-		return 1;
-	}
-
-	int start=1;
-	if(!v.empty())
-		start = v.back()+1;
-
-	for(int i = start; i < n; i++) {
-		v.PB(i);
-		int val = build(n, sum-i);
-		if(done) break;
-		v.pop_back();
-		if(val == -1) {
-			return 0;
-		}
-	}
-	return 0;
-}
-
 void solve(ll n) {
-	ll sum = (n*(n+1))/2;
+	ll first = n;
+	ll second = n+1;
+	ll sum = (first*second)/2;
 	if(sum%2 != 0) {
 		cout << "NO" << endl;
 		return;
 	}
-	sum /= 2;
-	build(n, sum);
-	if(!done){
-		cout << "NO" << endl;
-		return;
+	if(first%2 == 0) {
+		first = first/2;
+		ll end = first/2;
+		for(int i = 1; i <= end; i++) {
+			v.push_back(second-i);
+			v.push_back(i);
+		}
+	} else {
+		second = second/2;
+		ll end = second/2;
+		for(int i = 0; i < end; i++) {
+			if(i) v.push_back(i);
+			v.push_back(first-i);
+		}
 	}
 	cout << "YES" << endl;
 	cout << v.size() << endl;
+	sort(all(v));
 	print(v);
 	cout << n - v.size() << endl;
 	int pos = 0;
 	for(int i = 1; i <= n; i++) {
 		if(pos < v.size()) {
-			if(v[pos] != i) cout << i << ' ';
-			else pos++;
+			if(v[pos] == i) pos++;
+			else cout << i << ' ';
 		} else {
 			cout << i << ' ';
 		}
