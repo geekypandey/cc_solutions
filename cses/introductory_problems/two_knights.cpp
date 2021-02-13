@@ -37,26 +37,6 @@ void setup(string s) {
 	freopen((s+".out").c_str(), "w", stdout);
 }
 
-bool check(int r, int c, int n) {
-	if(r >= 0 && r < n && c>=0 && c < n) return true;
-	return false;
-}
-
-ll get_count(int n) {
-	ll ans = 0;
-	forn(r, n) {
-		forn(c, n) {
-			ll count = 0;
-			if(check(r+1, c-2, n)) count++;
-			if(check(r+1, c+2, n)) count++;
-			if(check(r+2, c-1, n)) count++;
-			if(check(r+2, c+1, n)) count++;
-			ans = ans + (n-c-1) + (n-r-1)*n - count;
-		}
-	}
-	return ans;
-}
-
 int main(void) {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
@@ -64,7 +44,10 @@ int main(void) {
 	ll n;
 	cin >> n;
 	for(int i = 1; i <= n; i++) {
-		cout << get_count(i) << endl;
+		ll a = i*i, b = a*(a-1)/2;
+		if(i>2)
+			b -= 4*(i-1)*(i-2);
+		cout << b << endl;
 	}
 
 	return 0;
