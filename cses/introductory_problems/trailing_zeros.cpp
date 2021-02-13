@@ -37,14 +37,6 @@ void setup(string s) {
 	freopen((s+".out").c_str(), "w", stdout);
 }
 
-unordered_map<int, int> mp;
-
-int get_count(ll i) {
-	if(i%5 != 0) return 0;
-	else if(mp.find(i) != mp.end()) return mp[i];
-	else return 1 + get_count(i/=5);
-}
-
 int main(void) {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
@@ -52,8 +44,10 @@ int main(void) {
 	ll n;
 	cin >> n;
 	ll ans = 0;
-	for(int i = 5; i <= n; i+=5) {
-		ans += get_count(i);
+	for(int i = 5; i <=n; i*=5) {
+		ll d = n/i;
+		if(d == 0) break;
+		ans += d;
 	}
 	cout << ans << endl;
 
