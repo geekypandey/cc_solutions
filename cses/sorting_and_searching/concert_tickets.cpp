@@ -44,29 +44,42 @@ int main(void) {
 
 	ll n, m;
 	cin >> n >> m;
-	vector<bool> used(n, false);
 	vi tp(n);
 	vi cust(m);
 	for(auto& e: tp) cin >> e;
 	for(auto& e: cust) cin >> e;
 
 	sort(all(tp));
+	set<int> s;
+	forn(i, n) s.insert(i);
 
 	for(auto& e: cust) {
-		auto it = lower_bound(all(tp), e+1);
-		int pos = distance(begin(tp), it);
-		if(pos == n) pos--;
-		while(pos > 0 && (used[pos] == true || tp[pos] > e)) {
-			pos--;
+		if(s.empty()) {
+			cout << -1 << endl;
+			continue;
 		}
-		if(used[pos] == false && tp[pos] <= e) {
-			used[pos] = true;
+		auto it = upper_bound(all(tp), e);
+		it--;
+		if(*it > e) {
+			cout << -1 << endl;
+			continue;
+		}
+		int pos = distance(begin(tp), it);
+		if(s.find(pos) == s.end()) {
+			// find a pos before
+			auto p = s.upper_bound(pos);
+			if(p == s.begin()) {
+				cout << -1 << endl;
+				continue;
+			}
+			p--;
+			cout << tp[*p] << endl;
+			s.erase(*p);
+		} else {
+			s.erase(pos);
 			cout << tp[pos] << endl;
 		}
-		else cout << -1 << endl;
 	}
-
 
 	return 0;
 }
-
