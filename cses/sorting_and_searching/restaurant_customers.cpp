@@ -51,26 +51,27 @@ int main(void) {
 	ll n;
 	cin >> n;
 
-	vector<pair<int, int>> v(n);
-	for(auto& e: v) {
-		cin >> e.S >> e.F;
+	vi a(n), d(n);
+
+	forn(i, n) {
+		cin >> a[i] >> d[i];
 	}
 
-	sort(all(v));
-	cout << endl;
+	sort(all(a));
+	sort(all(d));
 
-	ll ans = 1;
-	ll last_count = 1;
-	ll start_pos = 1;
-
-	forn(i, n-1) {
-		if(start_pos == n) break;
-		start_pos = max(i+1, start_pos);
-		for(int j = start_pos; j < n; j++) {
-			if(v[j].S < v[i].F) start_pos++;
-			else break;
+	ll cur = 0;
+	ll ans = 0;
+	ll i = 0, j = 0;
+	while(i < n && j < n) {
+		if(a[i] < d[j]) {
+			cur++;
+			i++;
+		} else {
+			cur--;
+			j++;
 		}
-		ans = max(ans, start_pos-i);
+		ans = max(ans, cur);
 	}
 
 	cout << ans << endl;
