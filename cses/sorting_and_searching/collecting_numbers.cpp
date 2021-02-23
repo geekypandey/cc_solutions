@@ -45,16 +45,19 @@ int main(void) {
 	ll n;
 	cin >> n;
 
-	vi v(n);
-	for(auto& e: v) cin >> e;
-	int m = n+1;
-	int ans = 0;
-	for(auto& e: v) {
-		if(m == 1) break;
-		if(e > m) continue;
+	vi v(n+1);
+	forn(i, n) {
+		int num;
+		cin >> num;
+		v[num]=i;
+	}
+
+	ll ans = 0;
+	ll i = 1;
+	while(i != n+1) {
 		ans++;
-		cout << e << endl;
-		m = min(m, e);
+		i++;
+		while(i < n+1 && v[i] > v[i-1]) i++;
 	}
 	cout << ans << endl;
 
