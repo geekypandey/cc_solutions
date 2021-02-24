@@ -51,18 +51,16 @@ int main(void) {
 	vi v(n);
 	for(auto& e: v) cin >> e;
 
-	vvi dp(x+1, vi(n, 0));
-	dp[0][0] = 1;
-	fora(i, 0, x) {
-		forn(j, n) {
-			if(i + v[j] <= x)
-				dp[i+v[j]][j] = (dp[i+v[j]][j]%M + dp[i][j]%M)%M;
-			if(j+1 < n)
-				dp[i][j+1] = (dp[i][j+1]%M + dp[i][j]%M)%M;
+	vi dp(x+1, 0);
+	dp[0] = 1;
+
+	for(auto& e: v) {
+		fora(i, 1, x+1) {
+			if(i - e >= 0)
+				dp[i] = (dp[i]%M + dp[i-e]%M)%M;
 		}
 	}
-
-	cout << accumulate(all(dp[x]), 0) << endl;
+	cout << dp[x] << endl;
 	return 0;
 }
 
