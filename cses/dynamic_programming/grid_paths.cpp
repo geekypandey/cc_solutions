@@ -60,17 +60,21 @@ int main(void) {
 		}
 	}
 
+	const int M = 1e9+7;
 	dp[0][0] = 1;
 	forn(i, n) {
 		forn(j, n) {
 			if(!v[i][j]) continue;
 			if(i+1<n && v[i+1][j])
-				dp[i+1][j] += dp[i][j];
+				dp[i+1][j] = (dp[i+1][j]%M + dp[i][j]%M)%M;
 			if(j+1<n && v[i][j+1])
-				dp[i][j+1] += dp[i][j];
+				dp[i][j+1] = (dp[i][j+1]%M + dp[i][j]%M)%M;
 		}
 	}
-	cout << dp[n-1][n-1] << endl;
+	if(v[0][0]==false || v[n-1][n-1] == false)
+		cout << 0 << endl;
+	else
+		cout << dp[n-1][n-1] << endl;
 
 	return 0;
 }
