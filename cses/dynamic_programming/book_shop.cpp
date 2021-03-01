@@ -53,17 +53,22 @@ int main(void) {
 	for(auto& e: p) cin >> e;
 	for(auto& e: pa) cin >> e;
 
-	vl dp(x+1, INT_MIN);
+	vvi dp(n, vi(x+1, 0));
 
-	dp[0] = 0;
 	forn(i, n) {
-		for(int j = x; j >=0; j--) {
-			if(j+p[i]<=x)
-				dp[j+p[i]] = max(dp[j+p[i]], dp[j]+pa[i]);
+		fora(s, 1, x+1) {
+			// using the ith item
+			if(s-p[i]>=0) { // able to pay the price
+				dp[i][s] = pa[i];
+				if(i-1>=0)
+					dp[i][s] += dp[i-1][s-p[i]];
+			}
+			if(i-1>=0)
+					dp[i][s] = max(dp[i][s], dp[i-1][s]);
 		}
 	}
-	cout << *max_element(all(dp)) << endl;
-
+	// what does dp[n][x] means
+	cout << dp[n-1][x] << endl;
 
 	return 0;
 }
