@@ -47,20 +47,12 @@ int main(void) {
 	vi v(n);
 	for(auto& e: v) cin >> e;
 	sort(all(v));
-	ll start = 1;
-	int pos = 0;
-	unordered_map<int, int> mp;
-	while(pos < n) {
-		if(start-v[pos]<0) break;
-		if(start-v[pos] == 0) {
-			mp[start] = pos;
-			start++;
-		} else if(mp[start-v[pos]] < pos) {
-			mp[start] = pos;
-			start++;
-		} else pos++;
+	ll ans = 1;
+	for(auto& e: v) {
+		if(ans < e) break;
+		else ans += e;
 	}
-	cout << start << endl;
+	cout << ans << endl;
 
 	return 0;
 }
