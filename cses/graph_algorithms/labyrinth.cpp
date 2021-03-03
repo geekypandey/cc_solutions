@@ -44,11 +44,11 @@ const int M = 1e9+7;
 
 
 int n, m;
-vector<string> v;
-vector<vector<bool>> vis;
+const int mxN = 1001;
+string v[mxN], p[mxN];
 
 bool ok(int i, int j) {
-	return (i>=0 && j>=0 && i<n && j<m && v[i][j] != '#' && !vis[i][j]);
+	return (i>=0 && j>=0 && i<n && j<m && (v[i][j] == '.'));
 }
 
 int main(void) {
@@ -56,71 +56,51 @@ int main(void) {
 	cin.tie(0);
 
 	cin >> n >> m;
-	v = vector<string>(n);
 
-	for(auto& e: v) cin >> e;
-
-	// find position to start the bfs
-	int x, y;
+	int si, sj, ti, tj;
 	forn(i, n) {
+		cin >> v[i];
 		forn(j, m) {
-			if(v[i][j] == 'A') {
-				x = i;
-				y = j;
+			if(v[i][j] == 'A')
+				si = i, sj = j;
+			if(v[i][j] == 'B')
+				ti = i, tj = j, v[i][j]='.';
+		}
+		p[i]= string(m, 0);
+	}
+
+	queue<array<int, 2>> qu;
+	qu.push({si, sj});
+
+	const int di[4] = {1, 0, -1 , 0}, dj[4] = {0, 1, 0, -1};
+	const char d[4] = {'D', 'R', 'U', 'L'};
+	while(!qu.empty()) {
+		auto pa = qu.front();
+		qu.pop();
+		if(pa[0] == ti && pa[1] == tj) break;
+		forn(i, 4) {
+			int ni = pa[0] + di[i], nj=pa[1]+dj[i];
+			if(ok(ni, nj)) {
+				v[ni][nj] = '#';
+				qu.push({ni, nj});
+				p[ni][nj] = d[i];
 			}
 		}
 	}
 
-	vis = vector<vector<bool>>(n, vector<bool>(m, false));
-	vector<vector<char>> p(n, vector<char>(m, ' '));
-
-	deque<pi> dq;
-	bool done = false;
-	dq.PB(MP(x, y));
-
-	while(!dq.empty() && !done) {
-		int n = dq.size();
-		forn(_, n) {
-			auto pa = dq.front();
-			dq.pop_front();
-			vis[pa.F][pa.S] = true;
-			if(v[pa.F][pa.S] == 'B') {
-				x = pa.F;
-				y = pa.S;
-				done=true;
-				break;
-			}
-			if(ok(pa.F, pa.S+1)) {
-				dq.PB(MP(pa.F, pa.S+1));
-				p[pa.F][pa.S+1] = 'R';
-			}
-			if(ok(pa.F, pa.S-1)) {
-				dq.PB(MP(pa.F, pa.S-1));
-				p[pa.F][pa.S-1] = 'L';
-			}
-			if(ok(pa.F+1, pa.S)) {
-				dq.PB(MP(pa.F+1, pa.S));
-				p[pa.F+1][pa.S] = 'D';
-			}
-			if(ok(pa.F-1, pa.S)) {
-				dq.PB(MP(pa.F-1, pa.S));
-				p[pa.F-1][pa.S] = 'U';
-			}
-		}
-	}
-	if(done) {
+	if(p[ti][tj]) {
 		cout << "YES" << endl;
 		string ans;
-		while(v[x][y] != 'A') {
-			char c = p[x][y];
+		while((ti != si) || (tj != sj)) {
+			char c = p[ti][tj];
 			ans.PB(c);
-			if(c == 'L') y++;
-			else if(c == 'R') y--;
-			else if(c == 'U') x++;
-			else if(c == 'D') x--;
+			if(c == 'L') tj++;
+			if(c == 'R') tj--;
+			if(c == 'U') ti++;
+			if(c == 'D') ti--;
 		}
-		cout << ans.length() << endl;
 		reverse(all(ans));
+		cout << ans.length() << endl;
 		cout << ans << endl;
 	} else {
 		cout << "NO" << endl;
