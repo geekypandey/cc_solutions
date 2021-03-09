@@ -42,45 +42,42 @@ void setup(string s) {
 
 const int M = 1e9+7;
 
+int ans=0;
+vvi adj;
+int n;
+vector<bool> vis;
+
+void dfs(int i, int p=-1) {
+	for(auto& e: adj[i]) {
+		if(e == p) continue;
+		dfs(e, i);
+		if(!vis[e] && !vis[i]) {
+			ans++;
+			vis[e] = true;
+			vis[i] = true;
+		}
+	}
+}
+
 int main(void) {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 
-	int n;
 	cin >> n;
 
-	vvi adj(n);
-	vi deg(n);
+	adj = vvi(n);
+	vis = vector<bool>(n);
+
 	forn(_, n-1) {
 		int a, b;
 		cin >> a >> b;
 		a--, b--;
 		adj[a].PB(b);
 		adj[b].PB(a);
-		deg[a]++;
-		deg[b]++;
 	}
-	vector<pi> v;
-	vector<bool> vis(n+1);
-	forn(i, n) {
-		v.PB({deg[i], i});
-	}
-	sort(all(v));
-	int ans = 0;
-	for(auto& node: v) {
-		auto a = node.S;
-		if(vis[a]) continue;
-		vis[a] = true;
-		for(auto& e: adj[a]) {
-			if(!vis[e]) {
-				ans++;
-				vis[e] = true;
-				break;
-			}
-		}
-	}
-	cout << ans << endl;
 
+	dfs(0);
+	cout << ans << endl;
 	return 0;
 }
 
