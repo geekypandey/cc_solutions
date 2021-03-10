@@ -91,9 +91,9 @@ int main(void) {
 			}
 			deg[node] = 0;
 
-			count += new_leaves.size();
-			leaves = new_leaves;
 		}
+		count += new_leaves.size();
+		leaves = new_leaves;
 	}
 
 	// center are in leaves
