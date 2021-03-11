@@ -43,15 +43,21 @@ void setup(string s) {
 const int M = 1e9+7;
 const int mxN = 2e5+1;
 int n, q;
+vvi boss;
 vi temp;
-vi boss[mxN];
-vi adj[mxN];
+vvi adj;
+int pos = 0;
+vi loc;
 
 void dfs(int i) {
-	boss[i] = temp;
+	loc[i] = pos;
 	temp.PB(i);
 	for(auto& e: adj[i]) {
 		dfs(e);
+	}
+	if(adj[i].empty()) { // leaf node
+		boss.PB(temp);
+		pos++;
 	}
 	temp.pop_back();
 }
@@ -61,6 +67,9 @@ int main(void) {
 	cin.tie(0);
 
 	cin >> n >> q;
+	loc = vi(n+1, 0);
+	adj = vvi(n+1);
+
 	fora(i, 2, n+1) {
 		int b;
 		cin >> b;
@@ -71,11 +80,12 @@ int main(void) {
 	forn(_, q) {
 		int x, k;
 		cin >> x >> k;
-		int n = boss[x].size();
-		if(n < k) cout << -1 << endl;
-		else cout << boss[x][n-k] << endl;
+		int pos = loc[x];
+		auto p = lower_bound(all(boss[pos]), x);
+		int location = distance(boss[pos].begin(), p);
+		if(location < k) cout << -1 << endl;
+		else cout << boss[pos][location-k] << endl;
 	}
 
 	return 0;
 }
-
