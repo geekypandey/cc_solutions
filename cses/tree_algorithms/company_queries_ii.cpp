@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
- 
+
 using namespace std;
- 
+
 using ll = long long;
 using vi = vector<int>;
 using vvi = vector<vector<int>>;
@@ -9,8 +9,8 @@ using vl = vector<ll>;
 using vvl = vector<vector<ll>>;
 using pi = pair<int, int>;
 using pl = pair<ll, ll>;
- 
- 
+
+
 #define all(x) begin(x), end(x)
 #define rall(x) rbegin(x), rend(x)
 #define PB push_back
@@ -24,8 +24,8 @@ using pl = pair<ll, ll>;
 #define readl(e) ll e; cin >> e
 #define reads(e) string e; cin >> e
 #define T int tt; cin >> tt; while(tt--)
- 
- 
+
+
 template<typename U>
 void print(U arr) {
 	for(auto element: arr) {
@@ -33,100 +33,95 @@ void print(U arr) {
 	}
 	cout << endl;
 }
- 
+
 // read and write into files, rather than standard i/o
 void setup(string s) {
 	freopen((s+".in").c_str(), "r", stdin);
 	freopen((s+".out").c_str(), "w", stdout);
 }
- 
+
 const int M = 1e9+7;
+
 int n, q;
 const int mxN = 2e5+1;
-vi adj[mxN];
-vi euler, loc(mxN, 0), who;
- 
-// Euler tour
-void dfs(int i, int depth=0) {
+vi adj[mxN], euler, who, loc(mxN);
+
+void dfs(int i, int d=0) {
 	loc[i] = euler.size();
-	euler.PB(depth);
+	euler.PB(d);
 	who.PB(i);
 	for(auto& e: adj[i]) {
-		dfs(e, depth+1);
-		euler.PB(depth);
+		dfs(e, d+1);
+		euler.PB(d);
 		who.PB(i);
 	}
-	return;
 }
- 
+
 vvi table, pos;
- 
+
 void build() {
 	int n = euler.size();
-	int k = log2(n);
-	table = vvi(k+1, vi(n)), pos = vvi(k+1, vi(n));
- 
+	int maxk = log2(n);
+	table = vvi(maxk+1, vi(n));
+	pos = vvi(maxk+1, vi(n));
+
 	forn(i, n) {
 		table[0][i] = euler[i];
 		pos[0][i] = i;
 	}
-	fora(i, 1, k+1) {
-		forn(j, n) {
-			int to = j+pow(2, i)-1;
-			if(to < n) {
-				if(table[i-1][j] < table[i-1][to]) {
-					pos[i][j] = pos[i-1][j];
-					table[i][j] = table[i-1][j];
-				} else {
-					pos[i][j] = pos[i-1][to];
-					table[i][j] = table[i-1][to];
-				}
+
+	fora(k, 1, maxk+1) {
+		for(int i = 0; i+(1<<k)<=n; i++) {
+			// When can we stop the looping
+			int j = i+(1<<(k-1));
+			if(table[k-1][i] < table[k-1][j]) {
+				table[k][i] = table[k-1][i];
+				pos[k][i] = pos[k-1][i];
+			} else {
+				table[k][i] = table[k-1][j];
+				pos[k][i] = pos[k-1][j];
 			}
+			/* table[k][i] = min(table[k-1][i], table[k-1][i+(1<<k-1)]); */
 		}
 	}
 }
- 
+
 int main(void) {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
- 
+
 	cin >> n >> q;
+
 	fora(i, 2, n+1) {
-		int b;
-		cin >> b;
-		adj[b].PB(i);
+		int a;
+		cin >> a;
+		adj[a].PB(i);
 	}
- 
-	// Step 1: Build a Euler list
+
+	// Step 1: build the euler tour
 	dfs(1);
-	// Done
-	// Step 2: Build a Sparse Table
+
+	// Step 2: Build the sparse table
 	build();
- 
+
 	forn(_, q) {
 		int a, b;
 		cin >> a >> b;
-		// answer using sparse table
+		// answer the query
 		int start = loc[a], end = loc[b];
-		int k = log2(abs(end-start));
-		int ans = pos[k][start];
-		if(table[k][end-k+1] < table[k][start]) {
-			ans = pos[k][end-k+1];
+		int k = log2(abs(end-start) + 1);
+		int i = min(start, end), j = max(start, end);
+		j = j - (1<<k) +1;
+		int ans;
+		if(table[k][i] < table[k][j]) {
+			ans = pos[k][i];
+		} else {
+			ans = pos[k][j];
 		}
 		ans = who[ans];
- 
-		// using normal method
-		/* int d = euler[start]; */
-		/* int ans = who[start]; */
-		/* fora(i, start, end+1) { */
-		/* 	if(euler[i] < d) { */
-		/* 		ans = who[i]; */
-		/* 		d = euler[i]; */
-		/* 	} */
-		/* } */
 		cout << ans << endl;
 	}
- 
- 
+
 	return 0;
 }
+
