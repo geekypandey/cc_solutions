@@ -41,87 +41,76 @@ void setup(string s) {
 }
 
 const int M = 1e9+7;
+const int mxN = 4e5+1;
 
-const int mxN = 2e5;
+vi bit(mxN, 0);
+vi v, vals;
 int n, q;
-vi v(mxN);
-vi tmx(4*mxN+1);
-vi tmn(4*mxN+1);
-vi lo(4*mxN+1);
-vi hi(4*mxN+1);
 
-void build(int i = 1, int l = 0, int r=n-1) {
-	lo[i] = l;
-	hi[i] = r;
-	if(l == r) {
-		tmx[i] = v[l];
-		tmn[i] = v[l];
-		return;
+void upd(int i, int val) {
+	while(i <= mxN) {
+		bit[i] += val;
+		i += (i&-i);
 	}
-	int m = l+(r-l)/2;
-	build(2*i, l, m);
-	build(2*i+1, m+1, r);
-	tmx[i] = max(tmx[2*i], tmx[2*i+1]);
-	tmn[i] = min(tmn[2*i], tmn[2*i+1]);
 }
 
-void update(int i, int k, int val) {
-	if(k < lo[i] || k > hi[i]) {
-		return;
-	}
-	if(lo[i] == k && hi[i] == k) {
-		tmx[i] = val;
-		tmn[i] = val;
-		return;
-	}
-	update(2*i, k, val);
-	update(2*i+1, k, val);
-	tmx[i] = max(tmx[2*i], tmx[2*i+1]);
-	tmn[i] = min(tmn[2*i], tmn[2*i+1]);
+void add(int x, int b) {
+	int ind = upper_bound(all(vals), x) - vals.begin();
+	upd(ind, b);
 }
 
-ll query(int i, int a, int b) {
-	if(a>tmx[i] || b<tmn[i]) {
-		return 0L;
+ll sum(int a) {
+	int ind = upper_bound(all(vals), a) - vals.begin();
+	ll ans = 0;
+	while(ind > 0) {
+		ans += bit[ind];
+		ind -= (ind&-ind);
 	}
-	if(a<=tmn[i] && tmx[i]<=b) {
-		return hi[i]-lo[i]+1;
-	}
-	return (long long)query(2*i, a, b) + query(2*i+1, a, b);
+	return ans;
 }
-
-/* void check(int i=1) { */
-/* 	cout << lo[i] << ':' << hi[i] << ' ' << tmx[i] << endl; */
-/* 	if(lo[i] == hi[i]) return; */
-/* 	check(2*i); */
-/* 	check(2*i+1); */
-/* } */
-
 
 int main(void) {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 
 	cin >> n >> q;
-	forn(i, n) cin >> v[i];
+	vi v(n);
+	for(auto& e: v) cin >> e;
 
-	build();
+	vals = v;
 
+
+	vector<array<int, 3>> rec;
 	forn(_, q) {
 		char t;
-		cin >> t;
-		if(t == '!') {
-			int k, val;
-			cin >> k >> val;
-			k--;
-			update(1, k, val);
-		} else {
-			int a, b;
-			cin >> a >> b;
-			cout << query(1, a, b) << endl;
-		}
+		int a, b;
+		cin >> t >> a >> b;
+		a--;
+		rec.PB({t=='?', a, b});
+		if(t == '!')
+			vals.PB(b);
 	}
 
+	sort(all(vals));
+	vals.erase(unique(all(vals)), vals.end()); // used for coordinate compression
+
+	for(auto& e: v) {
+		add(e, 1);
+	}
+
+	for(auto& e: rec) {
+		if(e[0] == 0) {
+			// update
+			int p = e[1], val = e[2];
+			add(v[p], -1);
+			v[p] = val;
+			add(val, 1);
+		} else {
+			// query
+			int a = e[1], b=e[2];
+			cout << sum(b) - sum(a) << endl;
+		}
+	}
 
 	return 0;
 }
