@@ -41,29 +41,51 @@ void setup(string s) {
 }
 
 const int M = 1e9+7;
+const int mxN = 2e5;
+vi v, vals;
+int n;
+
+vi bit(mxN+1, 0);
+
+void upd(int i) {
+	int ind = upper_bound(all(vals), i) - vals.begin();
+	while(ind <= n) {
+		bit[ind] += 1;
+		ind += (ind&-ind);
+	}
+}
+
+int query(int i) {
+	int ind = upper_bound(all(vals), i) - vals.begin();
+	int s = 0;
+	while(ind > 0) {
+		s += bit[ind];
+		ind -= (ind&-ind);
+	}
+	return s;
+}
 
 int main(void) {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 
-	int n;
 	cin >> n;
-	vi v(n);
+	v = vector<int>(n);
 	for(auto& e: v) cin >> e;
 	v.erase(unique(all(v)), v.end());
+	vals = v;
+	sort(all(vals));
+	print(v);
+
 	n = v.size();
-	vector<int> dp(n, 1);
 	int ans = 0;
-	forn(i, n) {
-		for(int j = 0; j < i; j++) {
-			if(v[i] > v[j]) {
-				dp[i] = max(dp[i], dp[j]+1);
-			}
-		}
-		ans = max(ans, dp[i]);
+	for(auto& e: v) {
+		upd(e);
+		int q = query(e);
+		cout << e << ' ' << q << endl;
+		ans = max(ans, q);
 	}
 	cout << ans << endl;
 
 	return 0;
 }
-
