@@ -53,14 +53,16 @@ int main(void) {
 	v.erase(unique(all(v)), v.end());
 	n = v.size();
 	vector<int> dp(n, 1);
+	int ans = 0;
 	forn(i, n) {
 		for(int j = 0; j < i; j++) {
 			if(v[i] > v[j]) {
 				dp[i] = max(dp[i], dp[j]+1);
 			}
 		}
+		ans = max(ans, dp[i]);
 	}
-	cout << dp[n-1] << endl;
+	cout << ans << endl;
 
 	return 0;
 }
