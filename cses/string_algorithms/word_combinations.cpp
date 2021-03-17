@@ -41,7 +41,7 @@ void setup(string s) {
 }
 
 const int M = 1e9+7;
-unordered_map<char, vector<string>> mp;
+unordered_set<string> se;
 int ans = 0;
 
 void dfs(string s, int i = 0) {
@@ -51,16 +51,11 @@ void dfs(string s, int i = 0) {
 		ans = ans%M;
 		return;
 	}
-	for(auto& e: mp[s[i]]) {
-		if(e.size() > n-i+1) continue;
-		int m = e.size();
-		bool yes = true;
-		for(int j = 0; j < m; j++) {
-			if(e[j] != s[i+j]) {
-				yes=false;
-			}
+	for(int k = 1; k <= n-i; k++) { // describing length
+		string f = s.substr(i, k);
+		if(se.count(f) != 0) {
+			dfs(s, i+k);
 		}
-		if(yes) dfs(s, i+m);
 	}
 }
 
@@ -75,7 +70,7 @@ int main(void) {
 	forn(_, n) {
 		string t;
 		cin >> t;
-		mp[t[0]].PB(t);
+		se.insert(t);
 	}
 	dfs(s);
 	cout << ans << endl;
