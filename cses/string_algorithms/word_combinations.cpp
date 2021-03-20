@@ -41,40 +41,38 @@ void setup(string s) {
 }
 
 const int M = 1e9+7;
-unordered_set<string> se;
 int ans = 0;
 
-void dfs(string s, int i = 0) {
-	int n = s.size();
-	if(i == n) {
-		ans++;
-		ans = ans%M;
-		return;
-	}
-	for(int k = 1; k <= n-i; k++) { // describing length
-		string f = s.substr(i, k);
-		if(se.count(f) != 0) {
-			dfs(s, i+k);
-		}
-	}
-}
+int k;
+string s;
+vector<string> v;
 
 int main(void) {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 
-	string s;
-	cin >> s;
-	int n;
-	cin >> n;
-	forn(_, n) {
-		string t;
-		cin >> t;
-		se.insert(t);
+	cin >> s >> k;
+	v=vector<string>(k);
+	for(auto& e: v) cin >> e;
+	int n = s.length();
+	vi dp(n+1, 0);
+	// string s
+	// multiple strings
+	dp[0] = 1;
+	for(int i=1; i <=n; i++) {
+		for(auto& e: v) {
+			int m = e.size();
+			if(i<m) continue;
+			bool y=1;
+			for(int j = 0; j < m&& y; j++) {
+				if(s[i-m+j] != e[j]) y=0;
+			}
+			if(y)
+				dp[i] = (dp[i]+dp[i-m])%M;
+		}
 	}
-	dfs(s);
-	cout << ans << endl;
+	cout << dp[n] << endl;
+
 
 	return 0;
 }
-
