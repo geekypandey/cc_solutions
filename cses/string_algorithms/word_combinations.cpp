@@ -47,6 +47,10 @@ int k;
 string s;
 vector<string> v;
 
+bool func(string s, string t) {
+	return s.length() < t.length();
+}
+
 int main(void) {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
@@ -55,24 +59,29 @@ int main(void) {
 	v=vector<string>(k);
 	for(auto& e: v) cin >> e;
 	int n = s.length();
-	vi dp(n+1, 0);
-	// string s
-	// multiple strings
-	dp[0] = 1;
-	for(int i=1; i <=n; i++) {
+	vi dp(n, 0);
+	sort(all(v), func);
+	for(int i=0; i < n; i++) {
 		for(auto& e: v) {
 			int m = e.size();
-			if(i<m) continue;
+			if(m > i+1) break;
 			bool y=1;
-			for(int j = 0; j < m&& y; j++) {
-				if(s[i-m+j] != e[j]) y=0;
+			for(int j = 0; j < m && y; j++) {
+				if(s[i-m+1+j] != e[j]) y=0;
 			}
-			if(y)
-				dp[i] = (dp[i]+dp[i-m])%M;
+			if(y) {
+				if(m != (i+1)) {
+					dp[i] = (dp[i]+dp[i-m])%M;
+				}
+				else {
+					dp[i]++;
+					dp[i]= dp[i]%M;
+				}
+			}
+
 		}
 	}
-	cout << dp[n] << endl;
-
+	cout << dp[n-1] << endl;
 
 	return 0;
 }
