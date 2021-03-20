@@ -52,22 +52,28 @@ int main(void) {
 	int n = s.length();
 
 	// hashing the string s
-	const int p = 31;
+	const int p = 27;
+	const int M2 = 1e9+23;
 	vl p_pow(mxN+1);
+	vl d_pow(mxN+1);
 	p_pow[0] = 1;
+	d_pow[0] = 1;
 	fora(i, 1, mxN+1) {
 		p_pow[i] = (p_pow[i-1]*p)%M;
+		d_pow[i] = (d_pow[i-1]*p)%M2;
 	}
 
-
-	vl h(n, 0);
+	vl ha(n, 0);
+	vl hb(n, 0);
 	forn(i, n) {
-		if(i)
-			h[i] = (h[i-1]+(s[i]-'a'+1)*p_pow[i])%M;
-		else
-			h[i] = ((s[i]-'a'+1)*p_pow[i])%M;
+		if(i) {
+			ha[i] = (ha[i-1]+(s[i]-'a'+1)*p_pow[i])%M;
+			hb[i] = (hb[i-1]+(s[i]-'a'+1)*d_pow[i])%M2;
+		} else {
+			ha[i] = ((s[i]-'a'+1)*p_pow[i])%M;
+			hb[i] = ((s[i]-'a'+1)*d_pow[i])%M2;
+		}
 	}
-	print(h);
 
 	int k;
 	cin >> k;
@@ -77,37 +83,39 @@ int main(void) {
 	sort(all(v), [](auto e, auto f){return e.length() < f.length();});
 
 	vl ah(k, 0);
+	vl aj(k, 0);
 	forn(i, k) {
 		int m = v[i].size();
 		forn(j, m) {
 			ah[i] = (ah[i] + (v[i][j]-'a'+1)*p_pow[j])%M;
+			aj[i] = (aj[i] + (v[i][j]-'a'+1)*d_pow[j])%M2;
 		}
 	}
-	print(ah);
 
 	vector<int> dp(n, 0);
 	for(int i = 0; i < n; i++) {
 		forn(j, k) {
 			int m = v[j].length();
 			if(m > i+1) break;
-			ll cur_h;
-			if(m != (i+1))
-				cur_h = (h[i] - (h[i-m]+M))%M;
-			else
-				cur_h = h[i];
-			bool y = (cur_h == (ah[j]*p_pow[i])%M);
+			ll cur_h, cur_g;
+			if(m == i+1) {
+				cur_h = ha[i];
+				cur_g = hb[i];
+			} else {
+				cur_h = (ha[i]-ha[i-m]+M)%M;
+				cur_g = (hb[i]-hb[i-m]+M2)%M2;
+			}
+			bool y = (cur_h == ah[j]*p_pow[i-m+1]%M && (cur_g == aj[j]*d_pow[i-m+1]%M2));
 			if(y) {
-				cout << "here" << endl;
-				if(m != i+1) {
-					dp[i] = (dp[i]+dp[i-m])%M;
-				} else {
+				if(m == i+1) {
 					dp[i]++;
-					dp[i]%=M;
+					dp[i] %= M;
+				} else {
+					dp[i] = (dp[i]+dp[i-m])%M;
 				}
 			}
 		}
 	}
-	print(dp);
 	cout << dp[n-1] << endl;
 
 
