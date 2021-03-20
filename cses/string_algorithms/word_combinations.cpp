@@ -41,47 +41,76 @@ void setup(string s) {
 }
 
 const int M = 1e9+7;
-int ans = 0;
-
-int k;
-string s;
-vector<string> v;
-
-bool func(string s, string t) {
-	return s.length() < t.length();
-}
+const int mxN = 1e6;
 
 int main(void) {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 
-	cin >> s >> k;
-	v=vector<string>(k);
-	for(auto& e: v) cin >> e;
+	string s;
+	cin >> s;
 	int n = s.length();
-	vi dp(n, 0);
-	sort(all(v), func);
-	for(int i=0; i < n; i++) {
-		for(auto& e: v) {
-			int m = e.size();
-			if(m > i+1) break;
-			bool y=1;
-			for(int j = 0; j < m && y; j++) {
-				if(s[i-m+1+j] != e[j]) y=0;
-			}
-			if(y) {
-				if(m != (i+1)) {
-					dp[i] = (dp[i]+dp[i-m])%M;
-				}
-				else {
-					dp[i]++;
-					dp[i]= dp[i]%M;
-				}
-			}
 
+	// hashing the string s
+	const int p = 31;
+	vl p_pow(mxN+1);
+	p_pow[0] = 1;
+	fora(i, 1, mxN+1) {
+		p_pow[i] = (p_pow[i-1]*p)%M;
+	}
+
+
+	vl h(n, 0);
+	forn(i, n) {
+		if(i)
+			h[i] = (h[i-1]+(s[i]-'a'+1)*p_pow[i])%M;
+		else
+			h[i] = ((s[i]-'a'+1)*p_pow[i])%M;
+	}
+	print(h);
+
+	int k;
+	cin >> k;
+	vector<string> v(k);
+	for(auto& e: v) cin >> e;
+
+	sort(all(v), [](auto e, auto f){return e.length() < f.length();});
+
+	vl ah(k, 0);
+	forn(i, k) {
+		int m = v[i].size();
+		forn(j, m) {
+			ah[i] = (ah[i] + (v[i][j]-'a'+1)*p_pow[j])%M;
 		}
 	}
+	print(ah);
+
+	vector<int> dp(n, 0);
+	for(int i = 0; i < n; i++) {
+		forn(j, k) {
+			int m = v[j].length();
+			if(m > i+1) break;
+			ll cur_h;
+			if(m != (i+1))
+				cur_h = (h[i] - (h[i-m]+M))%M;
+			else
+				cur_h = h[i];
+			bool y = (cur_h == (ah[j]*p_pow[i])%M);
+			if(y) {
+				cout << "here" << endl;
+				if(m != i+1) {
+					dp[i] = (dp[i]+dp[i-m])%M;
+				} else {
+					dp[i]++;
+					dp[i]%=M;
+				}
+			}
+		}
+	}
+	print(dp);
 	cout << dp[n-1] << endl;
+
 
 	return 0;
 }
+
