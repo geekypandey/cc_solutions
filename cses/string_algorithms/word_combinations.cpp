@@ -53,25 +53,18 @@ int main(void) {
 
 	// hashing the string s
 	const int p = 27;
-	const int M2 = 1e9+23;
 	vl p_pow(mxN+1);
-	vl d_pow(mxN+1);
 	p_pow[0] = 1;
-	d_pow[0] = 1;
 	fora(i, 1, mxN+1) {
 		p_pow[i] = (p_pow[i-1]*p)%M;
-		d_pow[i] = (d_pow[i-1]*p)%M2;
 	}
 
 	vl ha(n, 0);
-	vl hb(n, 0);
 	forn(i, n) {
 		if(i) {
 			ha[i] = (ha[i-1]+(s[i]-'a'+1)*p_pow[i])%M;
-			hb[i] = (hb[i-1]+(s[i]-'a'+1)*d_pow[i])%M2;
 		} else {
 			ha[i] = ((s[i]-'a'+1)*p_pow[i])%M;
-			hb[i] = ((s[i]-'a'+1)*d_pow[i])%M2;
 		}
 	}
 
@@ -80,15 +73,14 @@ int main(void) {
 	vector<string> v(k);
 	for(auto& e: v) cin >> e;
 
-	sort(all(v), [](auto e, auto f){return e.length() < f.length();});
+	sort(all(v), [](auto e, auto f) {return e.length() < f.length();});
+
 
 	vl ah(k, 0);
-	vl aj(k, 0);
 	forn(i, k) {
 		int m = v[i].size();
 		forn(j, m) {
 			ah[i] = (ah[i] + (v[i][j]-'a'+1)*p_pow[j])%M;
-			aj[i] = (aj[i] + (v[i][j]-'a'+1)*d_pow[j])%M2;
 		}
 	}
 
@@ -100,12 +92,10 @@ int main(void) {
 			ll cur_h, cur_g;
 			if(m == i+1) {
 				cur_h = ha[i];
-				cur_g = hb[i];
 			} else {
 				cur_h = (ha[i]-ha[i-m]+M)%M;
-				cur_g = (hb[i]-hb[i-m]+M2)%M2;
 			}
-			bool y = (cur_h == ah[j]*p_pow[i-m+1]%M && (cur_g == aj[j]*d_pow[i-m+1]%M2));
+			bool y = (cur_h == ah[j]*p_pow[i-m+1]%M);
 			if(y) {
 				if(m == i+1) {
 					dp[i]++;
