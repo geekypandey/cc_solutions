@@ -46,13 +46,12 @@ vvi adj;
 vi v;
 int n;
 
-int dfs(int i) {
-	int sub = 0;
+void dfs(int i=1) {
+	v[i] = 1;
 	for(auto& e: adj[i]) {
-		sub += dfs(e);
+		dfs(e);
+		v[i] += v[e];
 	}
-	v[i] = sub;
-	return 1 + sub;
 }
 
 int main(void) {
@@ -61,7 +60,7 @@ int main(void) {
 
 	cin >> n;
 	adj = vvi(n+1);
-	v = vi(n+1);
+	v = vi(n+1, 0);
 
 	fora(i, 2, n+1) {
 		int num;
@@ -69,8 +68,8 @@ int main(void) {
 		adj[num].PB(i);
 	}
 
-	dfs(1);
-	fora(i, 1, n+1) cout << v[i] << ' ';
+	dfs();
+	fora(i, 1, n+1) cout << v[i]-1 << ' ';
 
 	return 0;
 }
