@@ -42,44 +42,44 @@ void setup(string s) {
 
 const int M = 1e9+7;
 
-vvi adj;
-int n;
-int ans = 1;
+const int mxN = 2e5;
 
-int dfs(int i, int p=-1) {
-	vi depth;
+vi adj[mxN+1];
+vi de(mxN+1, 0); // represents the maximum distance from current node to its children, tree rooted at 1
+int ans = 0;
+
+void dfs(int i, int p=-1) {
+	int f=0, s=0;
 	for(auto& e: adj[i]) {
-		if(e != p) depth.PB(dfs(e, i));
+		if(e != p) {
+			dfs(e, i);
+			de[i] = max(de[i], 1+de[e]);
+			if(1+de[e] > f) {
+				s = f;
+				f = 1+de[e];
+			} else if(1+de[e] > s) {
+				s = 1+de[e];
+			}
+		}
 	}
-	if(depth.empty()) return 1;
-	// this is the top node from where the diameter is passing
-	sort(all(depth));
-	if(depth.size() > 1) {
-		int k = depth.size();
-		ans = max(ans, depth[k-1]+depth[k-2]+1);
-		return depth.back() + 1;
-	}
-	ans = max(ans, depth.back()+1);
-	return depth.back() + 1;
+	ans = max(ans, f+s);
 }
 
 int main(void) {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 
+	int n;
 	cin >> n;
-	adj = vvi(n);
-
 	forn(_, n-1) {
 		int a, b;
-		cin >> a >> b; a--, b--;
+		cin >> a >> b;
 		adj[a].PB(b);
 		adj[b].PB(a);
 	}
 
-	dfs(0);
-	// ans is the number of nodes in the diameter path
-	cout << ans-1 << endl;
+	dfs(1); // start the dfs from any node
 
+	cout << ans << endl;
 	return 0;
 }
