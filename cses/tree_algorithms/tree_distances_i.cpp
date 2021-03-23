@@ -42,13 +42,26 @@ void setup(string s) {
 
 const int M = 1e9+7;
 
-vi depth;
-vvi adj;
+const int mxN = 2e5;
+vi adj[mxN+1];
+vi de(mxN+1, 0);
+int max_depth = 0;
 
-void dfs(int i, int parent, int d=0) {
-	depth[i] = d;
+void dfs(int i, int p=-1, int d=0) {
+	de[i] = d;
 	for(auto& e: adj[i]) {
-		if(e != parent) dfs(e, i, d+1);
+		if(e == p) continue;
+		dfs(e, i, d+1);
+	}
+	max_depth = max(max_depth, d);
+}
+
+vi ans(mxN+1);
+
+void dfs2(int i, int p, int m) {
+	ans[i] = de[i]+m+1;
+	for(auto& e: adj[i]) {
+		if(e != p) dfs2(e, i, m);
 	}
 }
 
@@ -58,64 +71,64 @@ int main(void) {
 
 	int n;
 	cin >> n;
-
-	adj = vvi(n);
-	depth = vi(n, 0);
-	vi deg(n, 0);
-
-	forn(i, n-1) {
+	vi con(n+1, 0);
+	forn(_, n-1) {
 		int a, b;
 		cin >> a >> b;
-		a--, b--;
 		adj[a].PB(b);
 		adj[b].PB(a);
-		deg[a]++;
-		deg[b]++;
+		con[a]++;
+		con[b]++;
 	}
 
-	// find the center of the tree
 	vi leaves;
-	forn(i, n) {
-		if(deg[i] <= 1) {
+	fora(i, 1, n+1) {
+		if(con[i] <= 1) {
+			con[i]--;
 			leaves.PB(i);
 		}
 	}
+
 	int count = leaves.size();
+	vector<bool> vis(n+1, false);
+
+	// finding the center
 
 	while(count < n) {
 		vi new_leaves;
-		for(auto& node: leaves) {
-			for(auto& e: adj[node]) {
-				deg[e]--;
-				if(deg[e] == 1) new_leaves.PB(e);
+		for(auto& leaf: leaves) {
+			for(auto& e: adj[leaf]) {
+				if(vis[e]) continue;
+				con[e]--;
+				if(con[e] == 1) new_leaves.PB(e);
 			}
-			deg[node] = 0;
-
+			vis[leaf] = true;
 		}
 		count += new_leaves.size();
 		leaves = new_leaves;
 	}
 
-	// center are in leaves
-	if(leaves.size() == 1) { // one center
-		int center = leaves.front();
-		for(auto& e: adj[center]) {
-			dfs(e, center, 1);
+	// one center
+	if(leaves.size() == 1) {
+		int root = leaves[0];
+		dfs(root);
+		fora(i, 1, n+1) {
+			cout << max_depth + de[i] << ' ';
 		}
-		int d = *max_element(all(depth));
-		for(auto& e: depth) {
-			cout << e + d << ' ';
-		}
-	} else { // two centers
-		int c1 = leaves.front();
-		int c2 = leaves.back();
-		dfs(c1, c2);
-		dfs(c2, c1);
-		int d = *max_element(all(depth));
-		for(auto& e: depth) {
-			cout << e + d + 1 << ' ';
-		}
+	} else {
+		int f_root = leaves[0], s_root = leaves[1];
+		int f_max, s_max;
+		dfs(f_root, s_root, 0);
+		f_max = max_depth;
+		max_depth = 0;
+		dfs(s_root, f_root, 0);
+		s_max = max_depth;
+		dfs2(f_root, s_root, f_max);
+		dfs2(s_root, f_root, s_max);
+		fora(i, 1, n+1) cout << ans[i] << ' ';
 	}
+
+
 	return 0;
 }
 
