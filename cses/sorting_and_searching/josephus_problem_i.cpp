@@ -2,46 +2,10 @@
 
 using namespace std;
 
-using ll = long long;
-using vi = vector<int>;
-using vvi = vector<vector<int>>;
-using vl = vector<ll>;
-using vvl = vector<vector<ll>>;
-using pi = pair<int, int>;
-using pl = pair<ll, ll>;
+#include <ext/pb_ds/assoc_container.hpp>
+using namespace __gnu_pbds;
 
-
-#define all(x) begin(x), end(x)
-#define rall(x) rbegin(x), rend(x)
-#define PB push_back
-#define MP make_pair
-#define F first
-#define S second
-#define endl '\n'
-#define forn(i, n) for(ll i = 0; i < n; i++)
-#define fora(i, a, n) for(ll i = a; i < n; i++)
-#define readi(e) int e; cin >> e
-#define readl(e) ll e; cin >> e
-#define reads(e) string e; cin >> e
-#define T int tt; cin >> tt; while(tt--)
-
-
-template<typename U>
-void print(U arr) {
-	for(auto element: arr) {
-		cout << element << " ";
-	}
-	cout << endl;
-}
-
-// read and write into files, rather than standard i/o
-void setup(string s) {
-	freopen((s+".in").c_str(), "r", stdin);
-	freopen((s+".out").c_str(), "w", stdout);
-}
-
-const int M = 1e9+7;
-
+typedef tree<int, null_type, less<int>, rb_tree_tag, tree_order_statistics_node_update> indexed_set;
 
 int main(void) {
 	ios::sync_with_stdio(false);
@@ -49,14 +13,15 @@ int main(void) {
 
 	int n;
 	cin >> n;
-	vector<int> v(n);
-	iota(all(v), 1);
+	indexed_set s;
+	for(int i = 1; i <=n; i++) s.insert(i);
 
 	int start = 0;
-	forn(i, n) {
-		int next = (start+1)%v.size();
-		cout << v[next] << ' ';
-		v.erase(begin(v)+next);
+	for(int i = 0; i < n; i++) {
+		int next = (start+1)%s.size();
+		int x = *s.find_by_order(next);
+		cout << x << ' ';
+		s.erase(x);
 		start = next;
 	}
 
