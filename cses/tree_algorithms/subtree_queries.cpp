@@ -51,56 +51,40 @@ const int mxN = 2e5+1;
 vi adj[mxN];
 vi v(mxN);
 vector<pi> interval(mxN);
-vi val;
+int c = 1;
 int n, q;
+vl bit(2*mxN+1);
 
+void upd(int i, int val) {
+	while(i <= 2*n) {
+		bit[i] += val;
+		i += (i&-i);
+	}
+}
 
-vl t(4*mxN+1);
-vi lo(4*mxN+1);
-vi hi(4*mxN+1);
+ll sum(int i) {
+	ll total = 0;
+	while(i > 0) {
+		total += bit[i];
+		i -= (i&-i);
+	}
+	return total;
+}
+
+ll sum(int l, int r) {
+	return sum(r) - sum(l-1);
+}
 
 void dfs(int i, int p=-1) {
-	interval[i].F = val.size();
-	val.PB(v[i]);
+	interval[i].F = c++;
+	upd(interval[i].F,  v[i]);
 	for(auto& e: adj[i]) {
 		if(e != p) {
 			dfs(e, i);
 		}
 	}
-	interval[i].S = val.size();
-	val.PB(v[i]);
-}
-
-void build(int i, int l, int r) {
-	lo[i] = l;
-	hi[i] = r;
-	if(l == r) {
-		t[i] = val[l];
-		return;
-	}
-	int m = l+(r-l)/2;
-	build(2*i, l, m);
-	build(2*i+1, m+1, r);
-	t[i] = t[2*i] + t[2*i+1];
-}
-
-ll query(int i, int l, int r) {
-	if(hi[i] < l || lo[i] > r) return 0;
-	if(l<=lo[i] && hi[i]<=r) return t[i];
-	// update
-	t[i] = t[2*i] + t[2*i+1];
-	return query(2*i, l, r) + query(2*i+1, l, r);
-}
-
-void update(int i, int l, int r, int u) {
-	if(hi[i] < l || lo[i] > r) return;
-	if(l<=lo[i] && hi[i]<=r) {
-		t[i] = u;
-		return;
-	}
-	update(2*i, l, r, u);
-	update(2*i+1, l, r, u);
-	t[i] = t[2*i] + t[2*i+1];
+	interval[i].S = c++;
+	upd(interval[i].S, v[i]);
 }
 
 int main(void) {
@@ -123,9 +107,6 @@ int main(void) {
 	dfs(0);
 
 
-	// build the Segment Tree
-	build(1, 0, val.size()-1);
-
 	forn(_, q) {
 		int t;
 		cin >> t;
@@ -135,15 +116,16 @@ int main(void) {
 			// update
 			s--;
 			int l = interval[s].F, r = interval[s].S;
-			update(1, l, l, x);
-			update(1, r, r, x);
+			upd(l, x-v[s]);
+			upd(r, x-v[s]);
+			v[s] = x;
 		} else {
 			int s;
 			cin >> s;
 			s--;
 			int l = interval[s].F, r = interval[s].S;
 			// query
-			ll ans = query(1, l, r);
+			ll ans = sum(l, r);
 			cout << ans/2 << endl;
 		}
 	}
