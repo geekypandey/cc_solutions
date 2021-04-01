@@ -44,54 +44,61 @@ const int M = 1e9+7;
 const int mxN = 2e5+1;
 
 vvi adj(mxN);
-vi loc(mxN), eu, de, parent(mxN, -1);
+int max_k;
+vvi table;
+vi parent(mxN, -1), de(mxN);
+int n, m;
 
-// building euler tree
 void dfs(int i, int p=-1, int d=0) {
 	parent[i] = p;
-	loc[i] = eu.size();
-	eu.PB(i);
-	de.PB(d);
+	de[i] = d;
 	for(auto& e: adj[i]) {
 		if(e != p) {
 			dfs(e, i, d+1);
-			eu.PB(i);
-			de.PB(d);
 		}
 	}
 }
 
-vvi table, pos;
-
 void build() {
-	int n = eu.size();
-	int max_k = floor(log2(n));
-	table = vvi(max_k+1, vi(n));
-	pos = vvi(max_k+1, vi(n));
+	max_k = floor(log2(n));
+	table = vvi(n+1, vi(max_k+1, -1));
 
-	forn(i, n) {
-		table[0][i] = de[i];
-		pos[0][i] = i;
+	fora(i, 1, n+1) {
+		table[i][0] = parent[i];
 	}
 
 	fora(k, 1, max_k+1) {
-		for(int i = 0; i+(1<<k) <= n; i++) {
-			int j = i + (1<<k-1);
-			int p = (table[k-1][i] < table[k-1][j]?i:j);
-			table[k][i] = table[k-1][p];
-			pos[k][i] = pos[k-1][p];
+		for(int i = 1; i <= n; i++) {
+			if(table[i][k-1] != -1)
+				table[i][k] = table[table[i][k-1]][k-1];
 		}
 	}
 }
 
+void up(int& a, int d) {
+	forn(i, max_k+1) {
+		if(d&(1<<i)) {
+			a = table[a][i];
+		}
+	}
+}
+
+void eql(int& a, int& b) {
+	int da = de[a], db = de[b];
+	if(da > db) up(a, da-db);
+	else up(b, db-da);
+}
+
 int query(int a, int b) {
-	a = loc[a], b = loc[b];
-	int i = min(a, b);
-	int j = max(a, b);
-	int k = floor(log2(j-i+1));
-	j = j - (1<<k) + 1 ;
-	int p = (table[k][i] < table[k][j]? i : j);
-	return eu[pos[k][p]];
+	eql(a, b);
+	if(a == b) return a;
+	for(int i = max_k; i >=0; i--) {
+		if(table[a][i] != table[b][i]) {
+			a = table[a][i];
+			b = table[b][i];
+		}
+	}
+	return parent[a];
 }
 
 vi val(mxN, 0);
@@ -112,7 +119,6 @@ int main(void) {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 
-	int n, m;
 	cin >> n >> m;
 	forn(_, n-1) {
 		int a, b;
@@ -124,6 +130,7 @@ int main(void) {
 	dfs(1);
 
 	build();
+
 	forn(_, m) {
 		int a, b;
 		cin >> a >> b;
@@ -141,4 +148,3 @@ int main(void) {
 
 	return 0;
 }
-
