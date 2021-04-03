@@ -44,41 +44,77 @@ const int M = 1e9+7;
 
 const int mxN = 2e5+1;
 
-int n, q;
-vi adj[mxN];
-vl v(mxN), dist(mxN, 0), sub(mxN, 0);
-vi pos(mxN);
-int c=1;
+ll n, q;
+vl adj[mxN];
+vl v(mxN), sub(mxN, 0), de(mxN, 0);
+vl pos(mxN), heavy(mxN, -1), head(mxN, -1), parent(mxN, 0);
 vl bit(mxN, 0);
+ll c = 1;
 
-void dfs(int i, int p=0) {
-	dist[i] = v[i];
+void dfs(ll i, ll p=0) {
 	sub[i] = 1;
-	if(p)
-		dist[i] += dist[p];
-	pos[i] = c++;
+	ll max_sub = 0;
 	for(auto& e: adj[i]) {
 		if(e != p) {
+			de[e] = de[i] +1;
+			parent[e] = i;
 			dfs(e, i);
 			sub[i] += sub[e];
+			if(sub[e] > max_sub) {
+				max_sub = sub[e];
+				heavy[i] = e;
+			}
 		}
 	}
 }
 
-void upd(int i, ll val) {
+void upd(ll i, ll val) {
 	while(i <= n) {
 		bit[i] += val;
 		i += (i&-i);
 	}
 }
 
-ll query(int i) {
-	ll s = 0;
+void build_hld(ll i, ll h) {
+	head[i] = h;
+	pos[i] = c++;
+	upd(pos[i], v[i]);
+	if(heavy[i] != -1)
+		build_hld(heavy[i], h);
+	for(auto& e: adj[i]) {
+		if(e != parent[i] && e != heavy[i]) {
+			build_hld(e, e);
+		}
+	}
+}
+
+ll sum(ll i) {
+	ll s=0;
 	while(i > 0) {
-		s += bit[i];
-		i -= (i&-i);
+		s+= bit[i];
+		i-=(i&-i);
 	}
 	return s;
+}
+
+ll sum(ll l, ll r) {
+	return sum(r) - sum(l-1);
+}
+
+ll query(ll i) {
+	ll ans = 0;
+	while(head[i] != head[1]) {
+		ll h = head[i];
+		ll l = pos[h];
+		ll r = l + de[i] - de[h];
+		ans += sum(l , r);
+		i = parent[h];
+	}
+	ll h = head[i];
+	ll l = pos[h] + de[1] - de[h];
+	ll r = pos[h] + de[i] - de[h];
+	ans += sum(l, r);
+	return ans;
 }
 
 int main(void) {
@@ -96,32 +132,23 @@ int main(void) {
 		adj[b].PB(a);
 	}
 
-	dfs(1, 0);
+	dfs(1);
 
-	fora(i, 1, n+1) {
-		int p = pos[i];
-		upd(p, (ll)dist[i]);
-		if(p+1 <= n)
-			upd(p+1, (ll)-dist[i]);
-	}
+	build_hld(1, 1);
 
 	forn(_, q) {
-		int t;
+		ll t;
 		cin >> t;
 		if(t == 1) {
-			int s, x;
+			ll s, x;
 			cin >> s >> x;
-			int l = pos[s];
-			int r = l+sub[s];
-			upd(l, x-v[s]);
-			if(r <= n)
-				upd(r, v[s]-x);
-			v[s] = x;
+			ll p = pos[s];
+			upd(p, (ll)x-v[s]);
+			v[s] = p;
 		} else {
-			int s;
+			ll s;
 			cin >> s;
-			int p = pos[s];
-			cout << (ll)query(p) << endl;
+			cout << (ll)query(s) << endl;
 		}
 	}
 
