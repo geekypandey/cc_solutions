@@ -20,6 +20,7 @@ vi t(4*mxN+1);
 vi lo(4*mxN+1);
 vi hi(4*mxN+1);
 vi parent(mxN, -1), heavy(mxN, 0), head(mxN), pos(mxN), sub(mxN), de(mxN, 0);
+vvi table;
 vi val(mxN, 0);
 int c = 0;
 
@@ -109,8 +110,6 @@ int query(int a, int b) {
 	return ans;
 }
 
-vvi table;
-
 void build_bl() {
 	int max_k = log2(n);
 	table = vvi(n+1, vi(max_k+1, -1));
@@ -131,6 +130,7 @@ int find_lca(int a, int b) {
 	forn(i, max_k+1) {
 		if(d & (1<<i)) b = table[b][i];
 	}
+	if(a == b) return a;
 	for(int k=max_k; k >= 0; k--) {
 		if(table[a][k] != table[b][k]) {
 			a = table[a][k];
@@ -150,6 +150,8 @@ int main() {
 	cin.tie(0);
 
 	cin >> n >> q;
+	int max_k = log2(n);
+	table = vvi(n+1, vi(max_k+1, -1));
 	fora(i, 1, n+1) cin >> v[i];
 	forn(_, n-1) {
 		int a, b;
