@@ -51,14 +51,14 @@ vl pos(mxN), heavy(mxN, -1), head(mxN, -1), parent(mxN, 0);
 vl bit(mxN, 0);
 ll c = 1;
 
-void dfs(ll i, ll p=0) {
+void dfs(int i) {
 	sub[i] = 1;
 	ll max_sub = 0;
 	for(auto& e: adj[i]) {
-		if(e != p) {
+		if(e != parent[i]) {
 			de[e] = de[i] +1;
 			parent[e] = i;
-			dfs(e, i);
+			dfs(e);
 			sub[i] += sub[e];
 			if(sub[e] > max_sub) {
 				max_sub = sub[e];
@@ -144,7 +144,7 @@ int main(void) {
 			cin >> s >> x;
 			ll p = pos[s];
 			upd(p, (ll)x-v[s]);
-			v[s] = p;
+			v[s] = x;
 		} else {
 			ll s;
 			cin >> s;
