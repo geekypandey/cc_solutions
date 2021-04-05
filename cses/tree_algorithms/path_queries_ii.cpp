@@ -19,7 +19,7 @@ vi v(mxN);
 vi t(4*mxN+1);
 vi lo(4*mxN+1);
 vi hi(4*mxN+1);
-vi parent(mxN, 0), heavy(mxN, 0), head(mxN), pos(mxN), sub(mxN), de(mxN, 0);
+vi parent(mxN, -1), heavy(mxN, 0), head(mxN), pos(mxN), sub(mxN), de(mxN, 0);
 vi val(mxN, 0);
 int c = 0;
 
@@ -94,36 +94,55 @@ int find_max(int l, int r) {
 }
 
 
-int query(int a, int b) { // b is the lca
-	int res = INT_MIN;
-	for(; head[a] != head[b]; b = parent[head[b]]) {
-		if(de[head[a]] > de[head[b]])
-			swap(a, b);
-		int cur_heavy = find_max(pos[head[b]], pos[b]);
-		res = max(res, cur_heavy);
+int query(int a, int b) {
+	int ans = INT_MIN;
+	while(head[a] != head[b]) {
+		int h = head[a];
+		int l = pos[h];
+		int r = pos[a];
+		ans = max(ans, find_max(l, r));
+		a = parent[h];
 	}
-	if(de[a] > de[b])
-		swap(a, b);
-	int cur_heavy = find_max(pos[a], pos[b]);
-	res = max(res, cur_heavy);
-	return res;
-	/* int s = INT_MIN; */
-	/* while(head[a] != head[b]) { */
-	/* 	int h = head[a]; */
-	/* 	int l = pos[h]; */
-	/* 	int r = pos[a]; */
-	/* 	s = max(s, find_max(l, r)); */
-	/* 	a = parent[h]; */
-	/* } */
-	/* int h = head[a]; */
-	/* int l = pos[h] + de[b] - de[h]; */
-	/* int r = l + de[a] - de[h]; */
-	/* s=max(s, find_max(l ,r)); */
-	/* return s; */
+	int l = pos[b];
+	int r = pos[a];
+	ans = max(ans, find_max(l, r));
+	return ans;
 }
 
-void find_lca(int a, int b) {
+vvi table;
 
+void build_bl() {
+	int max_k = log2(n);
+	table = vvi(n+1, vi(max_k+1, -1));
+	fora(i, 1, n+1) table[i][0] = parent[i];
+
+	fora(k, 1, max_k+1) {
+		fora(i, 1, n+1) {
+			if(table[i][k-1] != -1)
+				table[i][k] = table[table[i][k-1]][k-1];
+		}
+	}
+}
+
+int find_lca(int a, int b) {
+	if(de[a] > de[b]) swap(a, b);
+	int d = de[b] - de[a];
+	int max_k = log2(n);
+	forn(i, max_k+1) {
+		if(d & (1<<i)) b = table[b][i];
+	}
+	for(int k=max_k; k >= 0; k--) {
+		if(table[a][k] != table[b][k]) {
+			a = table[a][k];
+			b = table[b][k];
+		}
+	}
+	return parent[a];
+}
+
+void setup(string s) {
+	freopen((s+".in").c_str(), "r", stdin);
+	freopen((s+".out").c_str(), "w", stdout);
 }
 
 int main() {
@@ -143,6 +162,7 @@ int main() {
 	build_hld(1, 1);
 
 	build(1, 0, n-1);
+	build_bl();
 
 	forn(_, q) {
 		int t;
@@ -156,9 +176,8 @@ int main() {
 		} else {
 			int a, b;
 			cin >> a >> b;
-			/* int lca = find_lca(a, b); */
-			/* cout << max(query(a, lca), query(b, lca)) << ' ' << endl; */
-			cout << query(a, b) << ' ';
+			int lca = find_lca(a, b);
+			cout << max(query(a, lca), query(b, lca)) << ' ';
 		}
 	}
 }
