@@ -57,22 +57,24 @@ void dfs(int i) {
 	}
 }
 
+int ans;
 int n;
-int min_sub = INT_MAX;
-int ans = 0;
 
 void dfs2(int i) {
 	int m = 0;
-	if(parent[i])
-		m = n - sub[i];
+	int node;
 	for(auto& e: adj[i]) {
 		if(e == parent[i]) continue;
-		dfs2(e);
-		m = max(m, sub[e]);
+		if(sub[e] > m) {
+			m = sub[e];
+			node = e;
+		}
 	}
-	if(m < min_sub) {
-		min_sub = m;
+	if(m <= n/2) {
 		ans = i;
+		return;
+	} else {
+		dfs2(node);
 	}
 }
 
