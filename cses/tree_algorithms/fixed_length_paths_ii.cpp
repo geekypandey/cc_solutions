@@ -111,7 +111,7 @@ void centroid_decomp(int i = 1) {
 		get_cnt(e, centroid, false);
 		get_cnt(e, centroid, true);
 	}
-	t = vi(mxN, 0);
+	fora(i, 1, mx_depth+1) upd(i, -query(i, i));
 	for(auto& e: adj[centroid]) if(!processed[e]) centroid_decomp(e);
 }
 
