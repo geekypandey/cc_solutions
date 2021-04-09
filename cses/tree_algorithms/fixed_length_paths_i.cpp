@@ -44,26 +44,54 @@ const int M = 1e9+7;
 
 const int mxN = 2e5+1;
 
+int n, k;
+ll ans = 0;
 vvi adj(mxN);
-vi parent(mxN, 0);
-vector<map<int, int>> mp(mxN);
+vi sub(mxN, 0);
+vector<bool> processed(mxN, false);
+int cnt[200001]{1}, mx_depth;
 
-void dfs(int i) {
-	mp[i][0] = 1;
-	for(auto& e: adj[i]) {
-		if(e == parent[i]) continue;
-		parent[e] = i;
-		dfs(e);
-		for(auto& [k, v]: mp[e])
-			mp[i][k+1] += v;
-	}
+int get_subtree_size(int i, int p = -1) {
+	sub[i] = 1;
+	for(auto& e: adj[i]) if(!processed[e] && e != p)
+		sub[i] += get_subtree_size(e, i);
+	return sub[i];
 }
+
+int get_centroid(int i, int p, int n) {
+	for(auto& e: adj[i]) {
+		if(!processed[e] && e != p && sub[e] > n/2)
+			return get_centroid(e, i, n);
+	}
+	return i;
+}
+
+void get_cnt(int i, int p, bool filling, int d = 1) {
+	if(d > k) return;
+	mx_depth = max(mx_depth, d);
+	if(filling) cnt[d]++;
+	else ans += cnt[k-d];
+	for(auto& e: adj[i]) if(!processed[e] && e != p)
+		get_cnt(e, i, filling, d+1);
+}
+
+void centroid_decomp(int i = 1) {
+	int centroid = get_centroid(i, -1, get_subtree_size(i));
+	processed[centroid] = true;
+	mx_depth = 0;
+	for(auto& e: adj[centroid]) if(!processed[e]) {
+		get_cnt(e, centroid, false);
+		get_cnt(e, centroid, true);
+	}
+	fill(cnt+1, cnt+mx_depth+1, 0);
+	for(auto& e: adj[centroid]) if(!processed[e]) centroid_decomp(e);
+}
+
 
 int main(void) {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 
-	int n, k;
 	cin >> n >> k;
 	forn(_, n-1) {
 		int a, b;
@@ -71,30 +99,8 @@ int main(void) {
 		adj[a].PB(b);
 		adj[b].PB(a);
 	}
-	if(k == 1) {
-		cout << n-1 << endl;
-		exit(0);
-	}
-	dfs(1);
-
-	int ans = 0;
-	fora(i, 1, n+1) {
-		vi v(n, 0);
-		for(auto& e: adj[i]) {
-			if(e == parent[i]) continue;
-			for(auto& [ke, u]: mp[e]) {
-				if(ke <= k-2) // pairing with others
-					ans += u*(v[k-2-ke]);
-				if(ke == k-1) // straight line pair
-					ans += u;
-			}
-			for(auto& [ke, u]: mp[e]) {
-				v[ke]+=u;
-			}
-		}
-	}
-	cout << ans << endl;
+	centroid_decomp();
+	cout << ans;
 
 	return 0;
 }
-
