@@ -44,6 +44,7 @@ const int M = 1e9+7;
 
 const int mxN=2e5+1;
 
+int n;
 vi adj[mxN], parent(mxN, 0), sub(mxN);
 
 
@@ -57,25 +58,13 @@ void dfs(int i) {
 	}
 }
 
-int ans;
-int n;
 
-void dfs2(int i) {
-	int m = 0;
-	int node;
+int centroid(int i) {
 	for(auto& e: adj[i]) {
-		if(e == parent[i]) continue;
-		if(sub[e] > m) {
-			m = sub[e];
-			node = e;
-		}
+		if(e != parent[i] && sub[e] > n/2)
+			return centroid(e);
 	}
-	if(m <= n/2) {
-		ans = i;
-		return;
-	} else {
-		dfs2(node);
-	}
+	return i;
 }
 
 int main(void) {
@@ -91,8 +80,7 @@ int main(void) {
 	}
 
 	dfs(1);
-	dfs2(1);
+	cout << centroid(1) << endl;
 
-	cout << ans << endl;
 	return 0;
 }
