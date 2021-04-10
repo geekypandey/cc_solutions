@@ -65,10 +65,9 @@ int main(void) {
 
 	setup("billboard");
 	Rect a, b;
-	if(b.y1<=a.y1 && a.y2<=b.y2) cout << a.area() - a.overlap(b);
-	else if(b.x1<=a.x1 && a.x2<=b.x2) cout << a.area() - a.overlap(b);
+	if(b.y1<=a.y1 && a.y2<=b.y2 && (!(a.x1<=b.x1 && b.x2<=a.x2))) cout << a.area() - a.overlap(b);
+	else if(b.x1<=a.x1 && a.x2<=b.x2 && (!(a.y1<=b.y1 && b.y2<=a.y2))) cout << a.area() - a.overlap(b);
 	else cout << a.area();
 
 	return 0;
 }
-
