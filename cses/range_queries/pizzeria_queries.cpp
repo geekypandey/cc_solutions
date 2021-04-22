@@ -43,7 +43,7 @@ const int M = 1e9+7;
 
 struct Seg {
 	const ll ID = LLONG_MAX;
-	vl lo, hi, t, delta;
+	vl lo, hi, t;
 
 	ll comb(ll a, ll b) {
 		return min(a, b);
@@ -53,7 +53,6 @@ struct Seg {
 		lo = vl(4*n+1);
 		hi = vl(4*n+1);
 		t = vl(4*n+1, 0);
-		delta = vl(4*n+1, 0);
 		init(1, 0, n-1);
 	}
 
@@ -76,24 +75,17 @@ struct Seg {
 		}
 
 		if(a<=lo[i] && hi[i]<=b) {
-			delta[i] += val;
+			t[i] = val;
 			return;
 		}
 
-		prop(i);
 		increment(2*i, a, b, val);
 		increment(2*i+1, a, b, val);
 		upd(i);
 	}
 
-	void prop(int i) {
-		delta[2*i] += delta[i];
-		delta[2*i+1] += delta[i];
-		delta[i] = 0;
-	}
-
 	void upd(int i) {
-		t[i] = comb(t[2*i] + delta[2*i], t[2*i+1] + delta[2*i+1]);
+		t[i] = comb(t[2*i], t[2*i+1]);
 	}
 
 	ll query(int a, int b) {
@@ -105,12 +97,10 @@ struct Seg {
 			return ID;
 		}
 		if(a<=lo[i] && hi[i]<=b) {
-			return t[i]+delta[i];
+			return t[i];
 		}
-		prop(i);
 		ll Left = query(2*i, a, b);
 		ll Right = query(2*i+1, a, b);
-		upd(i);
 		return comb(Left, Right);
 	}
 };
@@ -139,14 +129,14 @@ int main(void) {
 			int k, u;
 			cin >> k >> u;
 			k--;
-			st.increment(k, k, u-v[k]);
-			ts.increment(k, k, u-v[k]);
+			st.increment(k, k, u+k);
+			ts.increment(k, k, u-k);
 			v[k] = u;
 		} else {
 			int p;
 			cin >> p;
 			p--;
-			cout << min(st.query(p+1, n-1)-p, ts.query(0, p-1)+p) << endl;
+			cout << min(st.query(p, n-1)-p, ts.query(0, p-1)+p) << endl;
 		}
 	}
 
